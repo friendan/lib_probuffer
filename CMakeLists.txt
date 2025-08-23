@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 3.16)
 project (probuffer C CXX)
-
 add_library(probuffer SHARED)
+add_executable(probuffer_test)
+
 file(GLOB_RECURSE SDK_FILES 
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.hpp"
@@ -9,9 +10,22 @@ file(GLOB_RECURSE SDK_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.cc"
 )
+
+file(GLOB_RECURSE TEST_FILES 
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+)
+
 target_sources(probuffer PRIVATE ${SDK_FILES})
-target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk/internal")
-set_property(TARGET probuffer PROPERTY CXX_STANDARD 20)  #指定C++标准 
+target_sources(probuffer_test PRIVATE ${TEST_FILES})
+
+target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk")
+target_include_directories(probuffer_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+set_property(TARGET probuffer probuffer_test PROPERTY CXX_STANDARD 20)  #指定C++标准 
 
 # VS筛选器配置
 # 简化的VS筛选器配置（CMake 3.8+支持）
@@ -21,21 +35,21 @@ if(MSVC)
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/sdk" PREFIX "sdk" FILES ${SDK_FILES})
   
   # 设置静态链接CRT（仅MSVC有效）
-  set_property(TARGET probuffer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") #C
-  set_property(TARGET probuffer PROPERTY CXX_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")  #C++
+  set_property(TARGET probuffer probuffer_test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") #C
+  set_property(TARGET probuffer probuffer_test PROPERTY CXX_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")  #C++
 endif()
 
 # Linux平台，静态链接C/C++运行时库
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_options(probuffer PRIVATE -static-libgcc)
-  target_link_options(probuffer PRIVATE -static-libstdc++)
+  target_link_options(probuffer probuffer_test PRIVATE -static-libgcc)
+  target_link_options(probuffer probuffer_test PRIVATE -static-libstdc++)
 endif()
 
 # 设置输出基础目录
 set(OUTPUT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 # 根据构建类型（Debug/Release）设置不同输出目录
-set_target_properties(probuffer PROPERTIES
+set_target_properties(probuffer probuffer_test PROPERTIES
   # Windows DLL输出路径
   RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_BASE_DIR}/debug"
   RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_BASE_DIR}/release"
