@@ -33,6 +33,7 @@ if(MSVC)
   # 自动根据sdk目录结构创建筛选器，根筛选器名为"sdk"
   # PREFIX "sdk" 确保所有筛选器都以sdk为前缀（保持与源目录的对应关系）
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/sdk" PREFIX "sdk" FILES ${SDK_FILES})
+  source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "src" FILES ${TEST_FILES})
   
   # 设置静态链接CRT（仅MSVC有效）
   set_property(TARGET probuffer probuffer_test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") #C
