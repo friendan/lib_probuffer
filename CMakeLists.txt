@@ -1,5 +1,16 @@
 cmake_minimum_required (VERSION 3.16)
 project (probuffer C CXX)
+
+# 限制只生成Debug和Release两种配置（必须在添加目标前设置）
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "仅保留Debug和Release配置" FORCE)
+
+# 设置默认安装路径前缀（可被命令行参数覆盖）
+if(WIN32)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/bin" CACHE PATH "安装路径前缀" FORCE)
+else()
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/bin" CACHE PATH "安装路径前缀" FORCE)
+endif()
+
 add_library(probuffer SHARED)
 add_executable(probuffer_test)
 
