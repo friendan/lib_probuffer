@@ -35,6 +35,7 @@ target_sources(probuffer PRIVATE ${SDK_FILES})
 target_sources(probuffer_test PRIVATE ${TEST_FILES})
 
 target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk")
+target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk/utf8_range")
 target_include_directories(probuffer_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set_property(TARGET probuffer probuffer_test PROPERTY CXX_STANDARD 20)  #指定C++标准 
@@ -50,6 +51,9 @@ if(MSVC)
   # 设置静态链接CRT（仅MSVC有效）
   set_property(TARGET probuffer probuffer_test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") #C
   set_property(TARGET probuffer probuffer_test PROPERTY CXX_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")  #C++
+  
+  # 设置VS的启动项目为probuffer_test
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT probuffer_test)
 endif()
 
 # Linux平台，静态链接C/C++运行时库
