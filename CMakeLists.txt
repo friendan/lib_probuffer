@@ -64,7 +64,8 @@ if(MSVC)
   # 设置VS的启动项目为probuffer_test
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT probuffer_test)
   
-  target_link_options(probuffer PRIVATE /DEF:"${CMAKE_CURRENT_SOURCE_DIR}/protosrc/protobuf.def")
+  set(DEF_FILE "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/probuff.def")
+  target_link_options(probuffer PRIVATE /DEF:${DEF_FILE})
 endif()
 
 # Linux平台，静态链接C/C++运行时库
