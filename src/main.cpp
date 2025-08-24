@@ -1,8 +1,9 @@
 #include<Windows.h>
-#include<stdio.h>
+#include<cstdlib>
 
 int main() {
 
 
-	return getchar();
+	std::system("pause");
+	return 0;
 }
