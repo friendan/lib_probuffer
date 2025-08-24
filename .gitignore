@@ -1,2 +1,3 @@
 build
 *.pdb
+protoc-31.1-win64
