@@ -20,7 +20,14 @@ file(GLOB_RECURSE SDK_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/sdk/*.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/sdk/main.cpp"
+)
+
+file(GLOB_RECURSE PROTOSRC_FILES 
+  "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/*.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/*.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/*.cc"
 )
 
 file(GLOB_RECURSE TEST_FILES 
@@ -31,11 +38,12 @@ file(GLOB_RECURSE TEST_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
 )
 
-target_sources(probuffer PRIVATE ${SDK_FILES})
+target_sources(probuffer PRIVATE ${SDK_FILES} ${PROTOSRC_FILES})
 target_sources(probuffer_test PRIVATE ${TEST_FILES})
 
 target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk")
 target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk/utf8_range")
+target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/protosrc")
 target_include_directories(probuffer_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set_property(TARGET probuffer probuffer_test PROPERTY CXX_STANDARD 20)  #指定C++标准 
@@ -46,6 +54,7 @@ if(MSVC)
   # 自动根据sdk目录结构创建筛选器，根筛选器名为"sdk"
   # PREFIX "sdk" 确保所有筛选器都以sdk为前缀（保持与源目录的对应关系）
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/sdk" PREFIX "sdk" FILES ${SDK_FILES})
+  source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/protosrc" PREFIX "protosrc" FILES ${PROTOSRC_FILES})
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "src" FILES ${TEST_FILES})
   
   # 设置静态链接CRT（仅MSVC有效）
