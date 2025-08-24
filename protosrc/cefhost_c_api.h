@@ -33,10 +33,17 @@ typedef enum {
 } CefHost_ParamType;
 
 // -------------------------- 2. 内存管理接口（分配/释放）--------------------------
-// 导出符号：Windows 下用 __declspec(dllexport)，Linux 下可省略（或用 -fvisibility=default）
+// ------------ 修正：区分导出和导入 ------------
+// 当定义 CEFHOST_C_API_EXPORTS 时（DLL 生成方），使用 dllexport
+// 否则（调用方），使用 dllimport
 #ifdef _WIN32
+#ifdef CEFHOST_C_API_EXPORTS
 #define CEFHOST_C_API __declspec(dllexport)
 #else
+#define CEFHOST_C_API __declspec(dllimport)
+#endif
+#else
+    // Linux/macOS 下无需特殊修饰（默认导出）
 #define CEFHOST_C_API
 #endif
 

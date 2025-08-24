@@ -46,6 +46,9 @@ target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/sdk/ut
 target_include_directories(probuffer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/protosrc")
 target_include_directories(probuffer_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
+# 预定义宏
+target_compile_definitions(probuffer PRIVATE CEFHOST_C_API_EXPORTS)
+
 set_property(TARGET probuffer probuffer_test PROPERTY CXX_STANDARD 20)  #指定C++标准 
 
 # VS筛选器配置
