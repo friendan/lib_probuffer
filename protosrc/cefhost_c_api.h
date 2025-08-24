@@ -5,6 +5,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// ------------ 关键修改：添加 extern "C" 声明 ------------
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // -------------------------- 1.  opaque 类型定义（隐藏内部实现）--------------------------
 // 隐藏 Protobuf 生成的 C++ 类，调用方仅通过指针操作
 typedef void* CefHost_Param;          // 对应 Protobuf 的 Param 类
@@ -102,5 +107,10 @@ CEFHOST_C_API CefHost_CefResponse CefHost_CefResponse_Deserialize(const uint8_t*
 
 // 释放序列化生成的二进制数据
 CEFHOST_C_API void CefHost_FreeSerializedData(uint8_t* data);
+
+// ------------ 关键修改：结束 extern "C" 声明 ------------
+#ifdef __cplusplus
+}
+#endif
 
 #endif // CEFHOST_C_API_H
