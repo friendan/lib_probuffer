@@ -1,6 +1,10 @@
 syntax = "proto3";
 package cefhost;
 
+message ParamList {
+  repeated Param items = 1;
+}
+
 message Param{
 	oneof value {
 		int32 intVal = 1;
@@ -12,6 +16,7 @@ message Param{
 		double doubleVal = 7;
 		float floatVal = 8;
 		bytes binVal = 9;
+		ParamList arrayVal = 10; // 添加数组类型，支持嵌套Param数组
 	}
 }
 
