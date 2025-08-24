@@ -69,6 +69,10 @@ if(MSVC)
   
   set(DEF_FILE "${CMAKE_CURRENT_SOURCE_DIR}/protosrc/probuff.def")
   target_link_options(probuffer PRIVATE /DEF:${DEF_FILE})
+  
+  # 强制编译器将源文件视为 UTF-8 编码
+  #target_compile_options(probuffer PRIVATE "/utf-8")
+  #target_compile_options(probuffer_test PRIVATE "/utf-8")
 endif()
 
 # Linux平台，静态链接C/C++运行时库
