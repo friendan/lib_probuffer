@@ -1,0 +1,27 @@
+syntax = "proto3";
+package cefhost;
+
+message Param{
+	oneof value {
+		int32 intVal = 1;
+		uint32 uintVal = 2;
+		int64 int64Val = 3;
+		uint64 uint64Val = 4;
+		string strVal = 5;
+		bool boolVal = 6;
+		double doubleVal = 7;
+		float floatVal = 8;
+		bytes binVal = 9;
+	}
+}
+
+message CefRequest {
+  repeated Param paramList = 1;
+  map<string, Param> paramMap = 2;
+}
+
+message CefResponse {
+  repeated Param paramList = 1;
+  map<string, Param> paramMap = 2;
+}
+
