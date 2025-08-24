@@ -250,7 +250,8 @@ CEFHOST_C_API void CefHost_CefRequest_AddParamToMap(CefHost_CefRequest req, cons
     if (req == nullptr || param == nullptr || key == nullptr) return;
     // 复制param到request的paramMap中
     cefhost::Param* cpp_param = TO_PARAM(param);
-    (*TO_REQUEST(req)->mutable_parammap())[key] = *cpp_param;
+    //(*TO_REQUEST(req)->mutable_parammap())[key] = *cpp_param; //等价与CopyFrom
+    (*TO_REQUEST(req)->mutable_parammap())[key].CopyFrom(*cpp_param);
 }
 
 // -------------------------- CefResponse 操作接口 --------------------------
@@ -265,7 +266,8 @@ CEFHOST_C_API void CefHost_CefResponse_AddParamToMap(CefHost_CefResponse resp, c
     if (resp == nullptr || param == nullptr || key == nullptr) return;
     // 复制param到response的paramMap中
     cefhost::Param* cpp_param = TO_PARAM(param);
-    (*TO_RESPONSE(resp)->mutable_parammap())[key] = *cpp_param;
+   // (*TO_RESPONSE(resp)->mutable_parammap())[key] = *cpp_param; //等价与CopyFrom
+    (*TO_RESPONSE(resp)->mutable_parammap())[key].CopyFrom(*cpp_param);
 }
 
 // -------------------------- 序列化/反序列化接口 --------------------------
