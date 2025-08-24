@@ -97,7 +97,44 @@ set_target_properties(probuffer probuffer_test PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_BASE_DIR}/release"
 )
 
+# 先判断是否为 Release 模式
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  # --------------------------
+  # 编译选项（区分平台）
+  # --------------------------
+  if(WIN32)  # Windows 平台（MSVC）
+    target_compile_options(probuffer PRIVATE
+      /Z7- /Zi- /Zc:inline-  # 禁用调试信息
+      /Os                    # 最小化大小
+      /GF                    # 字符串池化
+    )
+  elseif(UNIX)  # Linux/macOS 平台（GCC/Clang）
+    target_compile_options(probuffer PRIVATE
+      -g0                    # 禁用调试信息
+      -Os                    # 最小化大小
+	  -ffunction-sections    # 将每个函数打包为独立段（配合链接器移除未用函数）
+	  -fdata-sections        # 将每个数据块打包为独立段（配合链接器移除未用数据）
+      -fmerge-all-constants  # 合并相同常量（类似 MSVC 的 /GF）
+    )
+  endif()
 
+  # --------------------------
+  # 链接选项（区分平台）
+  # --------------------------
+  if(WIN32)  # Windows 平台（MSVC 链接器）
+    target_link_options(probuffer PRIVATE
+      /DEBUG:NO # 禁用链接器调试信息（对应VS“生成调试信息: 否”）
+      /OPT:ICF  # 合并相同函数/数据（COMDAT折叠）
+      /OPT:REF  # 移除未引用函数/数据
+    )
+  elseif(UNIX)  # Linux/macOS 平台（GCC/Clang 链接器）
+    target_link_options(probuffer PRIVATE
+      -s                     # 剥离符号表（禁用链接器调试信息，减小体积）
+      -Wl,--gc-sections      # 移除未引用的段（配合编译选项 -ffunction-sections/-fdata-sections）
+      -Wl,--icf=all          # 合并相同段（类似 MSVC 的 /OPT:ICF，GCC 4.5+ 支持）
+    )
+  endif()
+endif()
 
 
 
