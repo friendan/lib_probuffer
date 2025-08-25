@@ -19,16 +19,20 @@ namespace CefHost {
 
     class CApi {
     public:
+        CApi(const CApi&) = delete;
+        CApi& operator=(const CApi&) = delete;
+
         static CApi& GetInstance() {
             static CApi s_instance;
             return s_instance;
         }
 
-        template <typename FuncPtr>
-        FuncPtr GetFunction(const std::string& func_name) const {
-            void* func_addr = nullptr;
-            func_addr = GetProcAddress(static_cast<HMODULE>(mDLL), func_name.c_str());
-            return reinterpret_cast<FuncPtr>(func_addr);
+        // 通用函数加载模板，减少重复代码
+        template <typename FuncType>
+        void LoadFunction(FuncType& func_ptr, const std::string& func_name) {
+            func_ptr = reinterpret_cast<FuncType>(
+                GetProcAddress(mDLL, func_name.c_str())
+                );
         }
 
         bool InitApi() {
@@ -36,38 +40,37 @@ namespace CefHost {
             mDLL = LoadLibraryA("probuffer.dll");
             if (mDLL == NULL) return false;
 
-            CefHost_Param_Create = GetFunction<decltype(CefHost_Param_Create)>("CefHost_Param_Create");
-            CefHost_Param_Destroy = GetFunction<decltype(CefHost_Param_Destroy)>("CefHost_Param_Destroy");
-            CefHost_Param_SetInt32 = GetFunction<decltype(CefHost_Param_SetInt32)>("CefHost_Param_SetInt32");
-            CefHost_Param_SetUInt32 = GetFunction<decltype(CefHost_Param_SetUInt32)>("CefHost_Param_SetUInt32");
-            CefHost_Param_SetInt64 = GetFunction<decltype(CefHost_Param_SetInt64)>("CefHost_Param_SetInt64");
-            CefHost_Param_SetUInt64 = GetFunction<decltype(CefHost_Param_SetUInt64)>("CefHost_Param_SetUInt64");
-            CefHost_Param_SetString = GetFunction<decltype(CefHost_Param_SetString)>("CefHost_Param_SetString");
-            CefHost_Param_SetBool = GetFunction<decltype(CefHost_Param_SetBool)>("CefHost_Param_SetBool");
-            CefHost_Param_SetDouble = GetFunction<decltype(CefHost_Param_SetDouble)>("CefHost_Param_SetDouble");
-            CefHost_Param_SetFloat = GetFunction<decltype(CefHost_Param_SetFloat)>("CefHost_Param_SetFloat");
-            CefHost_Param_SetBytes = GetFunction<decltype(CefHost_Param_SetBytes)>("CefHost_Param_SetBytes");
-            CefHost_Param_SetArray = GetFunction<decltype(CefHost_Param_SetArray)>("CefHost_Param_SetArray");
-			
-            CefHost_Param_GetType = GetFunction<decltype(CefHost_Param_GetType)>("CefHost_Param_GetType");
-            CefHost_Param_GetInt32 = GetFunction<decltype(CefHost_Param_GetInt32)>("CefHost_Param_GetInt32");
-            CefHost_Param_GetUInt32 = GetFunction<decltype(CefHost_Param_GetUInt32)>("CefHost_Param_GetUInt32");
-            CefHost_Param_GetInt64 = GetFunction<decltype(CefHost_Param_GetInt64)>("CefHost_Param_GetInt64");
-            CefHost_Param_GetUInt64 = GetFunction<decltype(CefHost_Param_GetUInt64)>("CefHost_Param_GetUInt64");
-            CefHost_Param_GetString = GetFunction<decltype(CefHost_Param_GetString)>("CefHost_Param_GetString");
-            CefHost_Param_GetBool = GetFunction<decltype(CefHost_Param_GetBool)>("CefHost_Param_GetBool");
-            CefHost_Param_GetDouble = GetFunction<decltype(CefHost_Param_GetDouble)>("CefHost_Param_GetDouble");
-            CefHost_Param_GetFloat = GetFunction<decltype(CefHost_Param_GetFloat)>("CefHost_Param_GetFloat");
-            CefHost_Param_GetBytes = GetFunction<decltype(CefHost_Param_GetBytes)>("CefHost_Param_GetBytes");
-            CefHost_Param_GetArray = GetFunction<decltype(CefHost_Param_GetArray)>("CefHost_Param_GetArray");
+            LoadFunction(CefHost_Param_Create, "CefHost_Param_Create");
+            LoadFunction(CefHost_Param_Destroy, "CefHost_Param_Destroy");
+            LoadFunction(CefHost_Param_SetInt32, "CefHost_Param_SetInt32");
+            LoadFunction(CefHost_Param_SetUInt32, "CefHost_Param_SetUInt32");
+            LoadFunction(CefHost_Param_SetInt64, "CefHost_Param_SetInt64");
+            LoadFunction(CefHost_Param_SetUInt64, "CefHost_Param_SetUInt64");
+            LoadFunction(CefHost_Param_SetString, "CefHost_Param_SetString");
+            LoadFunction(CefHost_Param_SetBool, "CefHost_Param_SetBool");
+            LoadFunction(CefHost_Param_SetDouble, "CefHost_Param_SetDouble");
+            LoadFunction(CefHost_Param_SetFloat, "CefHost_Param_SetFloat");
+            LoadFunction(CefHost_Param_SetBytes, "CefHost_Param_SetBytes");
+            LoadFunction(CefHost_Param_SetArray, "CefHost_Param_SetArray");
+            LoadFunction(CefHost_Param_GetType, "CefHost_Param_GetType");
+            LoadFunction(CefHost_Param_GetInt32, "CefHost_Param_GetInt32");
+            LoadFunction(CefHost_Param_GetUInt32, "CefHost_Param_GetUInt32");
+            LoadFunction(CefHost_Param_GetInt64, "CefHost_Param_GetInt64");
+            LoadFunction(CefHost_Param_GetUInt64, "CefHost_Param_GetUInt64");
+            LoadFunction(CefHost_Param_GetString, "CefHost_Param_GetString");
+            LoadFunction(CefHost_Param_GetBool, "CefHost_Param_GetBool");
+            LoadFunction(CefHost_Param_GetDouble, "CefHost_Param_GetDouble");
+            LoadFunction(CefHost_Param_GetFloat, "CefHost_Param_GetFloat");
+            LoadFunction(CefHost_Param_GetBytes, "CefHost_Param_GetBytes");
+            LoadFunction(CefHost_Param_GetArray, "CefHost_Param_GetArray");
 
-            CefHost_ParamList_Create = GetFunction<decltype(CefHost_ParamList_Create)>("CefHost_ParamList_Create");
-            CefHost_ParamList_Destroy = GetFunction<decltype(CefHost_ParamList_Destroy)>("CefHost_ParamList_Destroy");
-            CefHost_ParamList_AddParam = GetFunction<decltype(CefHost_ParamList_AddParam)>("CefHost_ParamList_AddParam");
-            CefHost_ParamList_GetCount = GetFunction<decltype(CefHost_ParamList_GetCount)>("CefHost_ParamList_GetCount");
-            CefHost_ParamList_GetParam = GetFunction<decltype(CefHost_ParamList_GetParam)>("CefHost_ParamList_GetParam");
+            LoadFunction(CefHost_FreeSerializedData, "CefHost_FreeSerializedData");
 
-            CefHost_FreeSerializedData = GetFunction<decltype(CefHost_FreeSerializedData)>("CefHost_FreeSerializedData");
+            LoadFunction(CefHost_ParamList_Create, "CefHost_ParamList_Create");
+            LoadFunction(CefHost_ParamList_Destroy, "CefHost_ParamList_Destroy");
+            LoadFunction(CefHost_ParamList_AddParam, "CefHost_ParamList_AddParam");
+            LoadFunction(CefHost_ParamList_GetCount, "CefHost_ParamList_GetCount");
+            LoadFunction(CefHost_ParamList_GetParam, "CefHost_ParamList_GetParam");
 
             mInit = true;
             return true;
