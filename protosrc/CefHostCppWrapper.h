@@ -207,10 +207,7 @@ namespace CefHost {
         Param& SetBytes(const uint8_t* bytes, size_t len) { CApi::CefHost_Param_SetBytes(m_handle, bytes, len); return *this; }
 
         // -------------------------- 循环依赖接口实现 --------------------------
-        inline Param& SetArray(const ParamList& list) {
-            CApi::CefHost_Param_SetArray(m_handle, list.m_handle);
-            return *this;
-        }
+        inline Param& SetArray(const ParamList& list);
 
         // 获取值
         CefHost_ParamType GetType() const { return CApi::CefHost_Param_GetType(m_handle); }
@@ -229,15 +226,7 @@ namespace CefHost {
             return { bytes, len };
         }
 
-        inline ParamList GetArray() const {
-            CefHost_ParamList list_handle = CApi::CefHost_Param_GetArray(m_handle);
-            if (!list_handle) {
-                throw std::runtime_error("Failed to get ParamList from Param.");
-            }
-            ParamList list;
-            list.m_handle = list_handle;
-            return list;
-        }
+        inline ParamList GetArray() const;
 
         CefHost_Param GetRawHandle() const { return m_handle; }
 
@@ -296,6 +285,21 @@ namespace CefHost {
         CefHost_ParamList GetRawHandle() const { return m_handle; }
         CefHost_ParamList m_handle = nullptr;
     };
+
+    inline Param& Param::SetArray(const ParamList& list) {
+        CApi::CefHost_Param_SetArray(m_handle, list.m_handle);
+        return *this;
+    }
+
+    inline ParamList Param::GetArray() const {
+        CefHost_ParamList list_handle = CApi::CefHost_Param_GetArray(m_handle);
+        if (!list_handle) {
+            throw std::runtime_error("Failed to get ParamList from Param.");
+        }
+        ParamList list;
+        list.m_handle = list_handle;
+        return list;
+    }
 
 } // namespace CefHost
 
