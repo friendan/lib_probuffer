@@ -14,21 +14,6 @@ extern "C" {
     #include "cefhost_c_api.h"
 }
 
-
-
-// 3. 工具宏
-#define CEFHOST_DISABLE_COPY(Class) \
-    Class(const Class&) = delete; \
-    Class& operator=(const Class&) = delete;
-
-#define CEFHOST_DISABLE_MOVE(Class) \
-    Class(Class&&) = delete; \
-    Class& operator=(Class&&) = delete;
-
-#define CEFHOST_DISABLE_COPY_MOVE(Class) \
-    CEFHOST_DISABLE_COPY(Class); \
-    CEFHOST_DISABLE_MOVE(Class);
-
 namespace CefHost {
     class ParamList;
 
@@ -145,12 +130,14 @@ namespace CefHost {
             }
         }
 
-        CEFHOST_DISABLE_COPY(SerializedData)
-            SerializedData(SerializedData&& other) noexcept
-            : m_data(other.m_data), m_len(other.m_len) {
+        SerializedData(const SerializedData&) = delete; 
+        SerializedData& operator=(const SerializedData&) = delete;
+
+         SerializedData(SerializedData&& other) noexcept: m_data(other.m_data), m_len(other.m_len) {
             other.m_data = nullptr;
             other.m_len = 0;
         }
+
         SerializedData& operator=(SerializedData&& other) noexcept {
             if (this != &other) {
                 m_data = other.m_data;
@@ -168,9 +155,6 @@ namespace CefHost {
     private:
         uint8_t* m_data = nullptr;
         size_t m_len = 0;
-
-        friend class CefRequest;
-        friend class CefResponse;
     };
 
     // -------------------------- Param封装 --------------------------
@@ -188,8 +172,13 @@ namespace CefHost {
             }
         }
 
-        CEFHOST_DISABLE_COPY(Param)
-            Param(Param&& other) noexcept : m_handle(other.m_handle) { other.m_handle = nullptr; }
+        Param(const Param&) = delete;
+        Param& operator=(const Param&) = delete;
+
+        Param(Param&& other) noexcept : m_handle(other.m_handle) { 
+            other.m_handle = nullptr; 
+        }
+
         Param& operator=(Param&& other) noexcept {
             if (this != &other) { m_handle = other.m_handle; other.m_handle = nullptr; }
             return *this;
@@ -253,8 +242,10 @@ namespace CefHost {
             }
         }
 
-        CEFHOST_DISABLE_COPY(ParamList)
-            ParamList(ParamList&& other) noexcept : m_handle(other.m_handle) { other.m_handle = nullptr; }
+        ParamList(const ParamList&) = delete;
+        ParamList& operator=(const ParamList&) = delete;
+
+        ParamList(ParamList&& other) noexcept : m_handle(other.m_handle) { other.m_handle = nullptr; }
         ParamList& operator=(ParamList&& other) noexcept {
             if (this != &other) { m_handle = other.m_handle; other.m_handle = nullptr; }
             return *this;
