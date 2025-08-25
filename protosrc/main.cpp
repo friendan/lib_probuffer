@@ -2,6 +2,7 @@
 #ifdef _WIN32
 // Windows平台DLL入口
 #include <windows.h>
+#include "CefHostCppWrapper.h"
 
 // Windows DLL入口函数
 BOOL APIENTRY DllMain(
