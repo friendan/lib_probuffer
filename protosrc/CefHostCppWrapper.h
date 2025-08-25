@@ -30,6 +30,7 @@ extern "C" {
     CEFHOST_DISABLE_MOVE(Class);
 
 namespace CefHost {
+    class ParamList;
 
     class CApi {
     public:
@@ -46,7 +47,7 @@ namespace CefHost {
         }
 
         bool InitApi() {
-            if (mInit) return;
+            if (mInit) return true;
             mDLL = LoadLibraryA("probuffer.dll");
             if (mDLL == NULL) return false;
 
@@ -204,7 +205,12 @@ namespace CefHost {
         Param& SetDouble(double value) { CApi::CefHost_Param_SetDouble(m_handle, value); return *this; }
         Param& SetFloat(float value) { CApi::CefHost_Param_SetFloat(m_handle, value); return *this; }
         Param& SetBytes(const uint8_t* bytes, size_t len) { CApi::CefHost_Param_SetBytes(m_handle, bytes, len); return *this; }
-        Param& SetArray(const ParamList& list);
+
+        // -------------------------- 循环依赖接口实现 --------------------------
+        inline Param& SetArray(const ParamList& list) {
+            CApi::CefHost_Param_SetArray(m_handle, list.m_handle);
+            return *this;
+        }
 
         // 获取值
         CefHost_ParamType GetType() const { return CApi::CefHost_Param_GetType(m_handle); }
@@ -216,12 +222,22 @@ namespace CefHost {
         bool GetBool() const { return CApi::CefHost_Param_GetBool(m_handle); }
         double GetDouble() const { return CApi::CefHost_Param_GetDouble(m_handle); }
         float GetFloat() const { return CApi::CefHost_Param_GetFloat(m_handle); }
+
         std::pair<const uint8_t*, size_t> GetBytes() const {
             const uint8_t* bytes = nullptr;
             size_t len = CApi::CefHost_Param_GetBytes(m_handle, &bytes);
             return { bytes, len };
         }
-        ParamList GetArray() const;
+
+        inline ParamList GetArray() const {
+            CefHost_ParamList list_handle = CApi::CefHost_Param_GetArray(m_handle);
+            if (!list_handle) {
+                throw std::runtime_error("Failed to get ParamList from Param.");
+            }
+            ParamList list;
+            list.m_handle = list_handle;
+            return list;
+        }
 
         CefHost_Param GetRawHandle() const { return m_handle; }
 
@@ -278,35 +294,8 @@ namespace CefHost {
         }
 
         CefHost_ParamList GetRawHandle() const { return m_handle; }
-
-    private:
-        // 声明 SerializedData 为友元类，允许其访问私有成员
-        friend class SerializedData;
         CefHost_ParamList m_handle = nullptr;
-
-        // 静态函数指针声明
-      
-
-
-        // 允许Param访问私有成员
-        friend class Param;
     };
-
-    // -------------------------- 循环依赖接口实现 --------------------------
-    inline Param& Param::SetArray(const ParamList& list) {
-        CApi::CefHost_Param_SetArray(m_handle, list.m_handle);
-        return *this;
-    }
-
-    inline ParamList Param::GetArray() const {
-        CefHost_ParamList list_handle = CApi::CefHost_Param_GetArray(m_handle);
-        if (!list_handle) {
-            throw std::runtime_error("Failed to get ParamList from Param.");
-        }
-        ParamList list;
-        list.m_handle = list_handle;
-        return list;
-    }
 
 } // namespace CefHost
 
