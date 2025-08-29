@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 #include <mutex>
-//#include <call_once>
+#include <optional>
 #include <stdexcept>
 extern "C" {
     #include "cefhost_c_api.h"
@@ -163,9 +163,11 @@ namespace CefHost {
     // -------------------------- Param封装 --------------------------
     class Param {
     public:
-        
         Param() {
             m_handle = CApi::CefHost_Param_Create();
+        }
+        Param(CefHost_Param handle) {
+             m_handle = handle;
         }
 
         ~Param() {
@@ -218,26 +220,16 @@ namespace CefHost {
             return { bytes, len };
         }
 
-        inline ParamList GetArray() const;
-
-        CefHost_Param GetRawHandle() const { return m_handle; }
-
-    private:
-        // 声明 SerializedData 为友元类，允许其访问私有成员
-        friend class SerializedData;
-        friend class ParamList;
+        inline std::optional<ParamList> GetArray() const;
         CefHost_Param m_handle = nullptr;
     };
 
     // -------------------------- ParamList封装 --------------------------
     class ParamList {
     public:
- 
-
         ParamList() {
             m_handle = CApi::CefHost_ParamList_Create();
         }
-
         ~ParamList() {
             if (m_handle) {
                 CApi::CefHost_ParamList_Destroy(m_handle);
@@ -250,29 +242,28 @@ namespace CefHost {
 
         ParamList(ParamList&& other) noexcept : m_handle(other.m_handle) { other.m_handle = nullptr; }
         ParamList& operator=(ParamList&& other) noexcept {
-            if (this != &other) { m_handle = other.m_handle; other.m_handle = nullptr; }
+            if (this != &other) { 
+                m_handle = other.m_handle; 
+                other.m_handle = nullptr; 
+            }
             return *this;
         }
 
         // 数组操作
-        void AddParam(Param param) {
-            CApi::CefHost_ParamList_AddParam(m_handle, param.GetRawHandle());
+        void AddParam(Param& param) {
+            CApi::CefHost_ParamList_AddParam(m_handle, param.m_handle);
             param.m_handle = nullptr; // 转移所有权
         }
 
         size_t GetCount() const { return CApi::CefHost_ParamList_GetCount(m_handle); }
 
-        Param GetParam(size_t index) const {
-            if (index >= GetCount()) {
-                throw std::out_of_range("ParamList index out of range.");
-            }
+        std::optional<Param> GetParam(size_t index) const {
             CefHost_Param param_handle = CApi::CefHost_ParamList_GetParam(m_handle, index);
             if (!param_handle) {
-                throw std::runtime_error("Failed to get Param from ParamList.");
+                return std::nullopt;
             }
             // 构造Param并转移句柄所有权
-            Param param;
-            param.m_handle = param_handle;
+            Param param(param_handle);
             return param;
         }
 
@@ -285,10 +276,10 @@ namespace CefHost {
         return *this;
     }
 
-    inline ParamList Param::GetArray() const {
+    inline std::optional<ParamList> Param::GetArray() const {
         CefHost_ParamList list_handle = CApi::CefHost_Param_GetArray(m_handle);
         if (!list_handle) {
-            throw std::runtime_error("Failed to get ParamList from Param.");
+            return std::nullopt;
         }
         ParamList list;
         list.m_handle = list_handle;
